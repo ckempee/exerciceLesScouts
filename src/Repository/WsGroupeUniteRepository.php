@@ -30,6 +30,29 @@ class WsGroupeUniteRepository extends ServiceEntityRepository
 
         return $query->getResult();
     }
+    
+// calculer le nombre d'unité dans chaque groupe
+    public function countUnitesInGroupe(): array
+{
+    return $this->createQueryBuilder('gu')
+    ->select('gu.name AS groupeName, COUNT(u.id) AS uniteCount')
+    ->leftJoin('gu.wsUnites', 'u')
+    ->groupBy('gu.name')
+    ->getQuery()
+    ->getResult();
+}
+
+//trouver les unités présentent dans un groupe d'unité
+
+public function findUnitesByGroupeUnite($groupeUniteId)
+{
+    return $this->createQueryBuilder('gu')
+        ->leftJoin('gu.unites', 'u')
+        ->where('gu.id = :groupeUniteId')
+        ->setParameter('groupeUniteId', $groupeUniteId)
+        ->getQuery()
+        ->getResult();
+}
 
     //    /**
     //     * @return WsGroupeUnite[] Returns an array of WsGroupeUnite objects

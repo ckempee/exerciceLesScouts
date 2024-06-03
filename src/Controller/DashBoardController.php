@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use App\Repository\WsMembreRepository;
 use App\Repository\WsBrancheRepository;
 use App\Repository\WsUniteRepository;
@@ -8,6 +9,7 @@ use App\Repository\WsGroupeUniteRepository;
 use App\Repository\WsSectionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+
 use Symfony\Component\Routing\Annotation\Route;
 
 class DashBoardController extends AbstractController
@@ -26,6 +28,13 @@ class DashBoardController extends AbstractController
 
         //récupérer le nom de tous les groupes d'unités pour les afficher sur une carte interactive
         $groupNames = $groupeUniteRepository->findAllGroupeUniteNames();
+        
+        //calculer le nombre d"unité dans chaque groupe
+
+        $unitesParGroupe = $groupeUniteRepository->countUnitesInGroupe();
+
+       
+        //calcul du pourcentage de membres 
 
         foreach ($membresParBranche as &$data) {
             $data['percentage'] = ($totalMembers > 0) ? round(($data['total'] / $totalMembers) * 100, 2) : 0;
@@ -38,6 +47,8 @@ class DashBoardController extends AbstractController
             'totalBranche' => $totalBranche,
             'membresParBranche' => $membresParBranche,
             'groupNames' => $groupNames,
+            'unitesParGroupe' => $unitesParGroupe,
+           
 
         ]);
     }
