@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa; /* Nuance de bleu gris */
+        }
+        .blue-bg {
+            background-color: #0a4174;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Centrer le texte à gauche */
+            margin-top: 20px; /* Margin pour déplacer la div vers le bas */
+            padding-left: 50px; /* Ajouter un padding à gauche */
+            color: white;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Effet d'ombre */
+        }
+        .blue-bg h1 {
+            margin: 0;
+        }
+        .info-cards {
+            margin-top: 30px;
+        }
+        .box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Effet d'ombre */
+            margin-bottom: 20px; /* Ajout d'espace entre les sections */
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 300px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="blue-bg">
+                <h1>Welcome</h1>
+                <img src="{{ asset('scouts.png') }}" style="position: absolute; right: 20px; top: -20px;">
+            </div>
+        </div>
+    </div>
+    <section class="statis mt-3 text-center">
+        <div class="row">
+            <div class="col-md-6 col-lg-4 mb-4 mb-lg-0">
+                <div class="box p-3">
+                    <h3>{{ totalMembres }}</h3>
+                    <p class="lead">Membres</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4 mb-lg-0">
+                <div class="box p-3">
+                    <h3>{{ totalGroupeUnite }}</h3>
+                    <p class="lead">Groupes d'unités</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4 mb-md-0">
+                <div class="box p-3">
+                    <h3>{{ totalUnite }}</h3>
+                    <p class="lead">Unités</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="box p-3">
+                <h2>Nombre de membres par branche :</h2>
+                <div class="chart-container">
+                    <canvas id="membresParBrancheChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="box p-3">
+                
+                <div id="map" style="height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    {% autoescape 'js' %}
+    var membresParBrancheData = JSON.parse('{{ membresParBranche|json_encode|raw }}');
+    var groupNames = JSON.parse('{{ groupNames|json_encode|raw }}');
+    {% endautoescape %}
+    
+    var labels = membresParBrancheData.map(data => `${data.branche} (${data.percentage}%)`);
+    var data = membresParBrancheData.map(data => data.total);
+
+    // graphique chartjs dans lequel j'affiche le nombre de membres par branches
+var ctx = document.getElementById('membresParBrancheChart').getContext('2d');
+var membresParBrancheChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Membres',
+            data: data,
+            backgroundColor: [
+                '#00a0dd', // Baladins
+                '#296f52', // Louveteaux
+                '#004f9e', // Eclaireurs
+                '#d4021d', // Pionniers
+            ],
+            hoverBackgroundColor: [
+                '#00a0dd', // Baladins
+                '#296f52', // Louveteaux
+                '#004f9e', // Eclaireurs
+                '#d4021d', // Pionniers
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+
+    // Initialiser la carte avec Leaflet.js
+    var map = L.map('map').setView([50.8503, 4.3517], 7); // Centré sur la Belgique
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Ajouter des marqueurs pour chaque groupe d'unité en utilisant Nominatim pour géocoder les noms
+    groupNames.forEach(group => {
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${group.name}, Belgium`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    var latLng = [data[0].lat, data[0].lon];
+                    L.marker(latLng)
+                        .addTo(map)
+                        .bindPopup(`<b>${group.name}</b>`);
+                }
+            })
+            .catch(error => console.error('Error with geocoding:', error));
+    });
+</script>
+{% endblock %}
+

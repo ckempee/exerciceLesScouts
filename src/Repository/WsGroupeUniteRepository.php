@@ -16,6 +16,21 @@ class WsGroupeUniteRepository extends ServiceEntityRepository
         parent::__construct($registry, WsGroupeUnite::class);
     }
 
+    /**pour trouver tous les noms de groupes d'unité afin de les afficher sur la carte!
+     * ATTENTION au fait que cela va retourner un tableaux
+     * */
+    
+    public function findAllGroupeUniteNames(): array
+    {
+        $entityManager = $this->getEntityManager();
+        $query = $entityManager->createQuery(
+            'SELECT gu.name
+            FROM App\Entity\WsGroupeUnite gu'
+        );
+
+        return $query->getResult();
+    }
+
     //    /**
     //     * @return WsGroupeUnite[] Returns an array of WsGroupeUnite objects
     //     */
