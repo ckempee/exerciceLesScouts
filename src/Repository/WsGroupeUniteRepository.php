@@ -24,7 +24,7 @@ class WsGroupeUniteRepository extends ServiceEntityRepository
     {
         $entityManager = $this->getEntityManager();
         $query = $entityManager->createQuery(
-            'SELECT gu.name
+            'SELECT gu.id,gu.name
             FROM App\Entity\WsGroupeUnite gu'
         );
 

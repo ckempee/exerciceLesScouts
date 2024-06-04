@@ -51,6 +51,11 @@
     z-index: 0;
 }
 
+.img{
+    width:130px;
+    height:150px;
+}
+
 
     </style>
 {% endblock %}
@@ -61,7 +66,7 @@
         <div class="col-md-12">
             <div class="blue-bg">
                 <h1>Welcome</h1>
-                <img src="{{ asset('scouts.png') }}" style="position: absolute; right: 20px; top: -20px;">
+                <img src="{{ asset('images/scouts2.png') }}" class="img" style="position: absolute; right: 20px; top: -60px;">
             </div>
         </div>
     </div>
@@ -99,12 +104,10 @@
         </div>
         <div class="col-md-8">
             <div class="box p-3">
-                <div id="map" style="height: 500px;"></div><!--carte-->
-                <div id="sidebar">
-                    <h2>Unités dans le groupe sélectionné :</h2>
-                     
-
-                </div> <!-- pour afficher la 'bulle' d'info avec les unités présentent dans ce groupe d'unité-->
+                <div id="map" style="height: 500px;">
+                <h2> Les groupes d'unité </h2>
+                </div><!--carte-->
+                
             </div>
         </div>
     </div>
@@ -170,36 +173,13 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 L.marker(latLng)
                     .addTo(map)
                     .bindPopup(`<b>${ '{{ groupe.groupeName }}' }</b> (${ '{{ groupe.uniteCount }}' } unités)`)
-                    .on('click', function () {
-                        var sidebarContent = `<h3>${ '{{ groupe.groupeName }}' }</h3><ul>`;
-                        
-                        sidebarContent += `</ul>`;
-                        document.getElementById('sidebar').innerHTML = sidebarContent;
-                        document.getElementById('sidebar').style.display = 'block';
-                    });
+                    
             } else {
                 console.error('No data found for:', '{{ groupe.groupeName }}');
             }
         })
         .catch(error => console.error('Error with geocoding:', error));
 {% endfor %}
-
-
-// Gestionnaire d'événements de clic sur les marqueurs
-function onMarkerClick(e) {
-    var groupName = e.target.options.groupName; // Récupérer le nom du groupe d'unités depuis les options du marqueur
-    var unitCount = e.target.options.unitCount; // Récupérer le nombre d'unités depuis les options du marqueur
-    var memberCount = e.target.options.memberCount; // Récupérer le nombre de membres depuis les options du marqueur
-
-    // Mettre à jour le contenu de la div sur le côté droit de la carte
-    document.getElementById('sidebar').innerHTML = `
-        <h2>${groupName}</h2>
-        <p>Nombre d'unités : ${unitCount}</p>
-        <p>Nombre de membres : ${memberCount}</p>
-    `;
-    sidebar.show(); // Afficher la div sur le côté droit de la carte
-}
-
 
 </script>
 {% endblock %}

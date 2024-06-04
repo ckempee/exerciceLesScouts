@@ -10,7 +10,12 @@
                 <tr>
                     <th>Nom</th>
                     <th>Prénom</th>
-                    <th>Unité</th></tr>
+                    <th>Email</th>
+                    <th>Unité</th>
+                    <th>Branche</th>
+                </tr>
+
+                    
                 </thead>
                 <tbody>
                 {% for membre in membres %}
@@ -18,6 +23,17 @@
                         <td>{{ membre.prenom }}</td>
                         <td>{{ membre.nom }}</td>
                         <td>{{ membre.email }}</td>
+                        <td>{{ membre.section.unite.name }}</td>
+                         {% if membre.section.branche.name == 'Baladins' %}
+                                <td class="badge badge-info">{{ membre.section.branche.name }}</td>
+                                {% elseif membre.section.branche.name == 'Eclaireurs' %}
+                                <td class="badge badge-primary">{{ membre.section.branche.name }}</td>
+                                {% elseif membre.section.branche.name == 'Louveteaux' %}
+                                <td class="badge badge-success">{{ membre.section.branche.name }}</td>
+                            {% else %}
+                               <td class="badge badge-danger">{{ membre.section.branche.name }}</td>
+                            {% endif %}
+                    
                     </tr>
                 {% endfor %}
                 </tbody>
