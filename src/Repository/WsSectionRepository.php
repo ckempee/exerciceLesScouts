@@ -25,13 +25,33 @@ class WsSectionRepository extends ServiceEntityRepository
         ->join('s.wsMembres', 'm')
         ->join('s.branche', 'b')
         ->groupBy('b.name');
-    
-
-
-
         $query = $qb->getQuery();
         return $query->getResult();
     }
+
+    public function membresParUnite(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->select('u.name AS unite, COUNT(m.id) AS total')
+            ->join('s.wsMembres', 'm')
+            ->join('s.unite', 'u')
+            ->groupBy('u.name')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function membresParBrancheDansUnite($uniteId): array
+{
+    return $this->createQueryBuilder('s')
+        ->select('b.name AS branche, COUNT(m.id) AS total')
+        ->join('s.wsMembres', 'm')
+        ->join('s.branche', 'b')
+        ->where('s.unite = :uniteId')
+        ->groupBy('b.name')
+        ->setParameter('uniteId', $uniteId)
+        ->getQuery()
+        ->getResult();
+}
 
   
     //    /**
