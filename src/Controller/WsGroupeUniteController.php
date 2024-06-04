@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\WsGroupeUnite;
+use App\Entity\WsUnite;
 use App\Repository\WsSectionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 class WsGroupeUniteController extends AbstractController
@@ -27,5 +29,12 @@ class WsGroupeUniteController extends AbstractController
             'wsUnites' => $wsUnites,
             'membresParUnite' => $membresParUniteMap,
         ]);
+    }
+
+    #[Route('/groupeUnite/{id}/membresParBranche', name: 'membresParBranche', methods: ['GET'])]
+    public function membresParBranche(WsUnite $unite, WsSectionRepository $sectionRepository): JsonResponse
+    {
+        $membresParBranche = $sectionRepository->membresParBrancheDansUnite($unite->getId());
+        return new JsonResponse($membresParBranche);
     }
 }

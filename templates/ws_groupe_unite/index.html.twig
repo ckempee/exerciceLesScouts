@@ -1,44 +1,139 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Groupe Unité{% endblock %}
+
 {% block stylesheets %}
-
 <style>
-    body {
-            background-color: #f8f9fa; /* Nuance de bleu gris */
-        }
-    .info-cards {
-            margin-top: 30px;
-        }
-        .box {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Effet d'ombre */
-            margin-bottom: 20px; /* Ajout d'espace entre les sections */
-        }
+   body {
+    margin-top: 20px;
+    background-color:  #f8f9fa;
+    padding:20px;
+}
 
-    </style>
+/* carte d'unité */
+.unit-card {
+    width: 350px; 
+    height:150px;
+    margin-bottom: 20px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    transition: box-shadow 0.3s ease-in-out; 
+    padding:20px;
+    background:white;
+}
+
+.unit-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+}
+
+
+.branch-card {
+    width: 250px;
+    height:120px;
+    margin-bottom: 40px;
+    padding:15px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    transition: box-shadow 0.3s ease-in-out; 
+}
+
+.branch-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Effet d'ombre plus prononcé au survol */
+}
+
+.branch-details {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px; /* Espacement entre l'image et le texte */
+}
+
+.branch-image {
+    width: 75px; /* Ajustez la taille de l'image selon vos besoins */
+    height: auto;
+}
+
+
+
+
+</style>
 {% endblock %}
-
-{% block title %}Groupe d'Unité : {{ groupeUnite.name }}{% endblock %}
 
 {% block body %}
-    <h1>{{ groupeUnite.name }}</h1>
+    <h1 class="text-center">{{ groupeUnite.name }}</h1>
     <section class="statis mt-3 text-center">
-        <div class="row">
+        <div class="row justify-content-center">
             {% for unite in wsUnites %}
-                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
-                    <div class="box p-3">
-                        <h3>{{ unite.name }}</h3>
-                        {% set memberCount = membresParUnite[unite.name]|default(0) %}
-                        <p class="lead">Membres: {{ memberCount }}</p>
+                <div class="col-md-3 mb-4">
+                    <div class="card unit-card" data-unite-id="{{ unite.id }}">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">{{ unite.name }}</h4>
+                            {% set memberCount = membresParUnite[unite.name]|default(0) %}
+                            <p class="card-text">Membres: {{ memberCount }}</p>
+                        </div>
                     </div>
-                </div> 
-                {% if loop.index is divisible by(4) %}
-                    </div><div class="row">
-                {% endif %}
+                </div>
             {% endfor %}
-        </div> 
+        </div>
     </section>
+
+    <section id="brancheDetails" class="mt-4 text-center"></section>
+    <section id="membresDetails" class="mt-4 text-center"></section>
+
 {% endblock %}
 
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.unit-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                var uniteId = this.dataset.uniteId;
+
+                fetch(`/groupeUnite/${uniteId}/membresParBranche`)
+                    .then(response => response.json())
+                    .then(data => {
+                        var brancheDetails = document.getElementById('brancheDetails');
+                        brancheDetails.innerHTML = '';
+
+                        var row = document.createElement('div');
+                        row.className = 'row justify-content-center';
+
+                        data.forEach(function(item) {
+                            var col = document.createElement('div');
+                            col.className = 'col-md-2 mb-4';
+
+                            var card = document.createElement('div');
+                            card.className = 'card branch-card ';
+                            card.innerHTML = `
+                                 <div class="card-body text-center">
+                                     <img src="${getImageForBranch(item.branche)}" alt="${item.branche}" class="branch-image">
+                                     <div class="branch-details">
+                                         <h5 class="card-title">${item.total} ${item.branche}</h5>
+                                        
+                                     </div>
+                                </div>
+                                `;
+
+                            col.appendChild(card);
+                            row.appendChild(col);
+                        });
+
+                        brancheDetails.appendChild(row);
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+
+    function getImageForBranch(branche) {
+    switch(branche) {
+        case 'Baladins':
+            return '/images/baladins.png';
+        case 'Louveteaux':
+            return '/images/louveteaux.png';
+        case 'Eclaireurs':
+            return '/images/eclaireurs.png';
+        case 'Pionniers':
+            return '/images/pionniers.png';
+        default:
+            return '/images/default-image.png'; // Image par défaut au cas où
+    }}
+</script>
+{% endblock %}
