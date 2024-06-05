@@ -1,6 +1,28 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello WsUniteController!{% endblock %}
+{% block title %}Unite {{unite.name}}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <style>
+.box {
+    
+  width:100%;
+  height:100%;
+ 
+}
+
+.branch-info{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    
+   
+ 
+}
+
+
+    </style>
+{% endblock %}
 
 {% block body %}
 <div class="container">
@@ -15,8 +37,8 @@
     <div class="statis mt-3 text-center">
         <div class="row">
             {% for branche_data in branches %}
-                <div class="col-6 col-md-3 mb-4 branch-info" data-branch-id="{{ branche_data.branche | lower }}">
-                    <div class="box p-3 bg-light">
+                <div class="col-6 col-md-3 mb-3 branch-info" data-branch-id="{{ branche_data.branche | lower }}">
+                    <div class="box p-3">
                         <img src="/images/{{ branche_data.branche }}.png" alt="{{ branche_data.branche }}" class="img-fluid mb-2">
                         <h3>{{ branche_data.total }}</h3>
                         <p class="lead">{{ branche_data.branche }}</p>
@@ -72,24 +94,36 @@
 
 <script>
     $(document).ready(function() {
-        // Afficher tous les membres par défaut
+        // par défaut, j'affiche la lste de tous les membres
         $('.branch-member').show();
 
-        // Détecter les clics sur les divs représentant les branches
+
+        // mais si je clique sur une des cartes
         $('.branch-info').click(function() {
-            // Récupérer l'identifiant unique de la branche sélectionnée
+
+             //je retire la class active de toutes les cartes (si jamais)
+    $('.branch-info').removeClass('active');
+
+    // et je l'ajoute à la carte sélectionnée qui prend alors la class active
+    $(this).addClass('active');
+
+      $('.branch-' + branchId).addClass('active');
+            //je récupère l'id de la carte pour pouvoir l'utiliser après 
             var branchId = $(this).data('branch-id');
             
-            // Cacher tous les membres
+            
+            
+            // je cache tous les 
             $('.branch-member').hide();
             
-            // Afficher seulement les membres de la branche sélectionnée
-            $('.branch-' + branchId).show();
+            // j'utilise l'id récupérer plus tôt pour montre que les membres de cette branche
+            $('.branch-' + branchId).show();           
         });
 
         // Afficher tous les membres lorsque le bouton est cliqué
         $('#show-all-members').click(function() {
             $('.branch-member').show();
+            $('.branch-info').removeClass('active');
         });
     });
 

@@ -30,22 +30,44 @@
         .info-cards {
             margin-top: 30px;
         }
+   
+
+
+
+
         .box {
             background-color: white;
             padding: 20px;
+            height: 100%;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
         .chart-container {
             position: relative;
-            height: 300px;
-            width: 300px;
+            height: 100%;
+            width: 100%;
         }
+
+        #membresParBrancheChart{
+            width:350px !important;
+            height:350px !important;
+        }
+
+        .chartjs-legend li span {
+    font-size: 1.2em !important;
+    display: block;
+    margin: 5px 0;}
+
         #map {
             position: relative;
             z-index: 0;
         }
+        #map-container, .chart-container-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
       
         .leaflet-popup {
             width: 300px;
