@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DashBoardController extends AbstractController
 {
-    //calculer le nombre total des membres, groupes, unité et branche pour les afficher sur la page principale
+    //ce que je veux afficher: nombre total membres OK, nombres groupe OK, nombre unité OK, charte branche OK, carte avec nom groupe OK, popup OK
     #[Route('/dashboard', name: 'dashboard')]
     public function index(EntityManagerInterface $entityManager, WsMembreRepository $membreRepository, WsBrancheRepository $brancheRepository, WsUniteRepository $uniteRepository, WsGroupeUniteRepository $groupeUniteRepository, WsSectionRepository $sectionRepository): Response
     {
@@ -30,7 +30,7 @@ class DashBoardController extends AbstractController
         $membresParBranche = $sectionRepository->membresParBranche();
 
         //récupérer le nom de tous les groupes d'unités pour les afficher sur une carte interactive et avoir accés à leur unité
-        //que j'afficherai dans une sideBar
+        //que j'afficherai dans un popUp avec le nom des unités
         $groupeUnite= $entityManager->getRepository(WsGroupeUnite::class)->findAll();
         
        
@@ -46,7 +46,6 @@ class DashBoardController extends AbstractController
             'totalMembres' => $totalMembers, //total membres
             'totalUnite' => $totalUnits, //total d'unité
             'totalGroupeUnite' => $totalGroups, //total de groupe d'unité
-            'totalBranche' => $totalBranche, //le nombre de branche
             'membresParBranche' => $membresParBranche, //le nombre de membres par branches pour les afficher en %
             'groupeUnite' => $groupeUnite, //les groupes d'unité
     

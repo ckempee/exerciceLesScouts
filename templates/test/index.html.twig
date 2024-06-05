@@ -1,43 +1,8 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="container">
-    <h1>Liste des membres</h1>
-    <div class="row">
-        <div class="col">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Unité</th>
-                    <th>Branche</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for section in sections %}
-                    {% for membre in section.wsMembres %}
-                        <tr>
-                            <td>{{ membre.nom }}</td>
-                            <td>{{ membre.prenom }}</td>
-                            <td>{{ membre.email }}</td>
-                            <td>{{ section.unite.name }}</td>
-                            <td>
-                                {% if section.branche.name == 'Baladin' %}
-                                    <a href="#" class="badge badge-info">{{ section.branche.name }}</a>
-                                {% elseif section.branche.name == 'Éclaireurs' %}
-                                    <a href="#" class="badge badge-primary">{{ section.branche.name }}</a>
-                                {% else %}
-                                    {{ section.branche.name }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+
+  
+     {% for unite in unites %}    <a href="#" class="dashboard-nav-dropdown-item">{{ unite.name }}</a>{% endfor %}
+
 {% endblock %}

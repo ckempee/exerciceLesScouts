@@ -86,7 +86,7 @@
             height: max-content;
             width:100px;
         }
-     
+    
     </style>
 {% endblock %}
 
@@ -96,7 +96,7 @@
         <div class="col-md-12">
             <div class="blue-bg">
                 <h1>Welcome</h1>
-                <img src="{{ asset('scouts.png') }}" style="position: absolute; right: 20px; top: -20px;">
+                <img src="{{ asset('images/scouts2.png') }}" style="position: absolute; right: 20px; top: -20px; " class="img">
             </div>
         </div>
     </div>
@@ -141,13 +141,14 @@
 </div>
 
 <script>
+//autoscape=récupéré par javascript. Ici c'est parce que ce sont des pourcentages
     {% autoescape 'js' %}
     var membresParBrancheData = JSON.parse('{{ membresParBranche|json_encode|raw }}');
     {% endautoescape %}
     
     var labels = membresParBrancheData.map(data => `${data.branche} (${data.percentage}%)`);
     var data = membresParBrancheData.map(data => data.total);
-
+//utilisation de chartjs
     var ctx = document.getElementById('membresParBrancheChart').getContext('2d');
     var membresParBrancheChart = new Chart(ctx, {
         type: 'doughnut',
@@ -180,20 +181,23 @@
             }
         }
     });
-
-    var map = L.map('map').setView([50.8503, 4.3517], 7);
+//map avec leaftlet sur laquelle j'affiche le nom des régions
+    var map = L.map('map').setView([50.8503, 4.3517], 7); //'zoomer' sur la Belle Belgique!
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
     {% for groupe in groupeUnite %}
+    //je n'ai pas de données longitute/latitude donc j'utilise nomunatim pour rechercher une région en belgique
+    //a changer parce que ca ne récupère pas toutes les données
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q={{ groupe.name }}, Belgium`)
-        .then(response => response.json())
+        .then(response => response.json()) //récupérer en json
         .then(data => {
             if (data.length > 0) {
-                var latLng = [data[0].lat, data[0].lon];
+                var latLng = [data[0].lat, data[0].lon];//récupérer longitude et latitude
                 var marker = L.marker(latLng)
                     .addTo(map)
+                    //pop up quand on clique sur un des marqueurs
                     .on('click', function () {
                         var popupContent = `
                             <div class="popup-content">
