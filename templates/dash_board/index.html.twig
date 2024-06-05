@@ -3,29 +3,26 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block stylesheets %}
-    <!-- Include Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Include Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
     <style>
         body {
-            background-color: #f8f9fa; 
+            background-color: #f8f9fa;
         }
         .blue-bg {
             background-color: #0a4174;
             height: 100px;
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* Centrer le texte à gauche */
-            margin-top: 20px; /* Margin pour déplacer la div vers le bas */
-            padding-left: 50px; /* Ajouter un padding à gauche */
+            justify-content: flex-start;
+            margin-top: 20px;
+            padding-left: 50px;
             color: white;
             position: relative;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Effet d'ombre */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .blue-bg h1 {
             margin: 0;
@@ -37,26 +34,29 @@
             background-color: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Effet d'ombre */
-            margin-bottom: 20px; /* Ajout d'espace entre les sections */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
         .chart-container {
             position: relative;
             height: 300px;
             width: 300px;
         }
-
         #map {
-    position: relative;
-    z-index: 0;
-}
-
-.img{
-    width:130px;
-    height:150px;
-}
-
-
+            position: relative;
+            z-index: 0;
+        }
+        #sidebar {
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 25%;
+            height: 100%;
+            background-color: white;
+            z-index: 1;
+            padding: 15px;
+        }
     </style>
 {% endblock %}
 
@@ -66,7 +66,7 @@
         <div class="col-md-12">
             <div class="blue-bg">
                 <h1>Welcome</h1>
-                <img src="{{ asset('images/scouts2.png') }}" class="img" style="position: absolute; right: 20px; top: -60px;">
+                <img src="{{ asset('scouts.png') }}" style="position: absolute; right: 20px; top: -20px;">
             </div>
         </div>
     </div>
@@ -104,10 +104,11 @@
         </div>
         <div class="col-md-8">
             <div class="box p-3">
-                <div id="map" style="height: 500px;">
-                <h2> Les groupes d'unité </h2>
-                </div><!--carte-->
-                
+                <div id="map" style="height: 500px;"></div>
+                <div id="sidebar">
+                    <h2>Unités dans le groupe sélectionné :</h2>
+                    <div id="sidebar-content"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -116,13 +117,11 @@
 <script>
     {% autoescape 'js' %}
     var membresParBrancheData = JSON.parse('{{ membresParBranche|json_encode|raw }}');
-    var groupNames = JSON.parse('{{ groupNames|json_encode|raw }}');
     {% endautoescape %}
     
     var labels = membresParBrancheData.map(data => `${data.branche} (${data.percentage}%)`);
     var data = membresParBrancheData.map(data => data.total);
 
-    // graphique chartjs dans lequel j'affiche le nombre de membres par branches
 var ctx = document.getElementById('membresParBrancheChart').getContext('2d');
 var membresParBrancheChart = new Chart(ctx, {
     type: 'doughnut',
@@ -132,16 +131,16 @@ var membresParBrancheChart = new Chart(ctx, {
             label: 'Membres',
             data: data,
             backgroundColor: [
-                '#00a0dd', // Baladins
-                '#296f52', // Louveteaux
-                '#004f9e', // Eclaireurs
-                '#d4021d', // Pionniers
+                '#00a0dd',
+                '#296f52',
+                '#004f9e',
+                '#d4021d',
             ],
             hoverBackgroundColor: [
-                '#00a0dd', // Baladins
-                '#296f52', // Louveteaux
-                '#004f9e', // Eclaireurs
-                '#d4021d', // Pionniers
+                '#00a0dd',
+                '#296f52',
+                '#004f9e',
+                '#d4021d',
             ]
         }]
     },
@@ -156,31 +155,39 @@ var membresParBrancheChart = new Chart(ctx, {
     }
 });
 
-
-   // carte Leaflet.js qui affiche de manière interactive les différents groupes d'unités par région + utilisation
-// de nominatim qui permet de géolocaliser les noms de ces unités vu que la longitude et latitude ne sont pas précisées
-var map = L.map('map').setView([50.8503, 4.3517], 7); // = carte centrée sur la Belgique 
+var map = L.map('map').setView([50.8503, 4.3517], 7);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-{% for groupe in unitesParGroupe %}
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${ '{{ groupe.groupeName }}' }, Belgium`)
+{% for groupe in groupeUnite %}
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q={{ groupe.name }}, Belgium`)
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
                 var latLng = [data[0].lat, data[0].lon];
-                L.marker(latLng)
+                var marker = L.marker(latLng)
                     .addTo(map)
-                    .bindPopup(`<b>${ '{{ groupe.groupeName }}' }</b> (${ '{{ groupe.uniteCount }}' } unités)`)
-                    
+                    .bindPopup(`<b>{{ groupe.name }}</b>`)
+                    .on('click', function () {
+                        fetch(`/dashboard/unites/{{ groupe.id }}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                var sidebarContent = '<ul>';
+                                data.forEach(unitName => {
+                                    sidebarContent += `<li>${unitName}</li>`;
+                                });
+                                sidebarContent += '</ul>';
+                                document.getElementById('sidebar-content').innerHTML = sidebarContent;
+                                document.getElementById('sidebar').style.display = 'block';
+                            })
+                            .catch(error => console.error('Error fetching unit names:', error));
+                    });
             } else {
-                console.error('No data found for:', '{{ groupe.groupeName }}');
+                console.error('No data found for:', '{{ groupe.name }}');
             }
         })
         .catch(error => console.error('Error with geocoding:', error));
 {% endfor %}
-
 </script>
 {% endblock %}
-
