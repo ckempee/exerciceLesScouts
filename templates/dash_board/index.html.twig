@@ -168,7 +168,15 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 var latLng = [data[0].lat, data[0].lon];
                 var marker = L.marker(latLng)
                     .addTo(map)
-                    .bindPopup(`<b>{{ groupe.name }}</b>`)
+                    .bindPopup(`
+                     <div class="infosGroupe">
+                        <div class="groupeName">
+                            <b>{{ groupe.name }}</b>
+                        </div>
+                         <div class="buttonInfos">
+                            <button> voir </button> 
+                        </div>
+                     </div>`)
                     .on('click', function () {
                         fetch(`/dashboard/unites/{{ groupe.id }}`)
                             .then(response => response.json())
