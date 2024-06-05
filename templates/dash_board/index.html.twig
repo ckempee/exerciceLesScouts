@@ -46,31 +46,7 @@
             position: relative;
             z-index: 0;
         }
-        #sidebar {
-            display: none;
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 25%;
-            height: 100%;
-            background-color: white;
-            z-index: 1;
-            padding: 15px;
-        }
-
-        #sidebar {
-    display: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 25%;
-    height: 100%;
-    background-color: white;
-    z-index: 1;
-    padding: 15px;
-    transition: transform 0.3s ease-in-out;
-    transform: translateX(100%);
-}
+      
 
 .sidebar-open {
     transform: translateX(0);
@@ -80,11 +56,11 @@
     width:200px;
     height:250px;
     right:50px;
+    background-color: white;
 }
 .leaflet-popup-content {
-    width: 100px; /* Ajustez la largeur selon vos besoins */
-    max-height: 300px; /* Ajustez la hauteur maximale selon vos besoins */
-    overflow-y: auto; /* Permet le défilement si le contenu dépasse la hauteur maximale */
+    width: max-content;
+    max-height: max-content;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     border-radius: 5px;
@@ -103,10 +79,12 @@
 
 /* Positionnement de la fenêtre pop-up sur le côté droit de la carte */
 .leaflet-popup-pane {
-    position: absolute !important;
-    right: 0;
-    top: 50%;
+    position: fixed !important;
+    right: 50px; /* Ajustez cette valeur selon vos besoins */
+    top: 50%; /* Centrer verticalement */
     transform: translateY(-50%);
+    max-width: 300px; /* Ajustez la largeur maximale selon vos besoins */
+    z-index: 1000; /* Assurez-vous que la fenêtre pop-up est au-dessus de tout */
 }
 
     </style>
@@ -221,12 +199,18 @@
                     var marker = L.marker(latLng)
                         .addTo(map)
                         .on('click', function () {
-                            var popupContent = `
-                                <div>
-                                    <h2>${{ groupe.name }}</h2>
-                                    <!-- Ajoutez d'autres informations si nécessaire -->
-                                </div>
-                            `;
+                       
+                        var popupContent = `
+                            <div>
+                                <h2>{{ groupe.name }}</h2>
+                                
+                                <ul class="list-group list-group-flush">
+                                    {% for unite in groupe.WsUnites %}
+                                        <li class="list-group-item">{{ unite.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        `;
                             var popupOptions = {
                                 maxWidth: '300',
                                 maxHeight: '200'
