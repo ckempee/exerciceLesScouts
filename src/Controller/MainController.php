@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class MainController extends AbstractController
 {
-    #[Route('/', name: 'app_main')]
+    #[Route('/membres', name: 'listMembres')]
     public function index(EntityManagerInterface $entityManager) : Response
     {
         $membres = $entityManager->getRepository(WsMembre::class)->findAll();

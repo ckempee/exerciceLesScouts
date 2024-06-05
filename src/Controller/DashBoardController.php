@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DashBoardController extends AbstractController
 {
     //calculer le nombre total des membres, groupes, unité et branche pour les afficher sur la page principale
-    #[Route('/dashboard', name: 'app_dash_board')]
+    #[Route('/dashboard', name: 'dashboard')]
     public function index(EntityManagerInterface $entityManager, WsMembreRepository $membreRepository, WsBrancheRepository $brancheRepository, WsUniteRepository $uniteRepository, WsGroupeUniteRepository $groupeUniteRepository, WsSectionRepository $sectionRepository): Response
     {
         $totalMembers = $membreRepository->count([]);

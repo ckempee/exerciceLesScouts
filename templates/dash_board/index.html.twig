@@ -53,17 +53,17 @@
 }
 
 .leaflet-popup {
-    width:200px;
+    width:350px;
     height:250px;
     right:50px;
     background-color: white;
 }
 .leaflet-popup-content {
-    width: max-content;
+    width:350px;
     max-height: max-content;
     background-color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
+   
+
     padding: 10px;
 }
 
@@ -73,9 +73,7 @@
 }
 
 /* Styles pour la fenêtre pop-up lorsqu'elle est ouverte */
-.leaflet-popup-content-wrapper {
-    background-color: rgba(255, 255, 255, 0.8); /* Ajoute une légère transparence */
-}
+
 
 /* Positionnement de la fenêtre pop-up sur le côté droit de la carte */
 .leaflet-popup-pane {
@@ -86,6 +84,33 @@
     max-width: 300px; /* Ajustez la largeur maximale selon vos besoins */
     z-index: 1000; /* Assurez-vous que la fenêtre pop-up est au-dessus de tout */
 }
+
+
+.unit {
+        padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+
+/* Pour la première unité, pas de marge supérieure */
+.unit:first-child {
+    margin-top: 0;
+}
+
+/* Pour la dernière unité, pas de marge inférieure */
+.unit:last-child {
+    margin-bottom: 0;
+}
+.popup-content {
+    padding: 10px;
+    background-color: #fff;
+    overflow-y: auto; /* Ajout de défilement vertical si nécessaire */
+    max-height: 500px; /* Limite la hauteur du pop-up */
+}
+
+
 
     </style>
 {% endblock %}
@@ -135,10 +160,7 @@
         <div class="col-md-8">
             <div class="box p-3">
                 <div id="map" style="height: 500px;"></div>
-                <div id="sidebar">
-    <h2>Unités dans le groupe sélectionné :</h2>
-    <div id="sidebar-content"></div>
-</div>
+                
             </div>
         </div>
     </div>
@@ -192,39 +214,46 @@
 
     {% for groupe in groupeUnite %}
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q={{ groupe.name }}, Belgium`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    var latLng = [data[0].lat, data[0].lon];
-                    var marker = L.marker(latLng)
-                        .addTo(map)
-                        .on('click', function () {
-                       
-                        var popupContent = `
-                            <div>
-                                <h2>{{ groupe.name }}</h2>
-                                
-                                <ul class="list-group list-group-flush">
-                                    {% for unite in groupe.WsUnites %}
-                                        <li class="list-group-item">{{ unite.name }}</li>
-                                    {% endfor %}
-                                </ul>
+    .then(response => response.json())
+    .then(data => {
+        if (data.length > 0) {
+            var latLng = [data[0].lat, data[0].lon];
+            var marker = L.marker(latLng)
+                .addTo(map)
+                .on('click', function () {
+                    var popupContent = `
+                        <div class="popup-content">
+                            <h2>{{ groupe.name }}</h2>
+                            
+                            <div class="unit-list">
+                                {% for unite in groupe.WsUnites %}
+                                    <div class="unit">{{ unite.name }}</div>
+                                    <div>
+                                      <a href="{{ path('wsUnite', { id: unite.id }) }}"
+    <button> Voir </button> 
+    </a> </div>
+                                    
+                                {% endfor %}
                             </div>
-                        `;
-                            var popupOptions = {
-                                maxWidth: '300',
-                                maxHeight: '200'
-                            };
-                            var popup = L.popup(popupOptions)
-                                .setLatLng(marker.getLatLng())
-                                .setContent(popupContent)
-                                .openOn(map);
-                        });
-                } else {
-                    console.error('No data found for:', '{{ groupe.name }}');
-                }
-            })
-            .catch(error => console.error('Error with geocoding:', error));
+                        </div>
+                    `;
+                    var popupOptions = {
+                        maxWidth: '300',
+                        maxHeight: '200'
+                    };
+                    var popup = L.popup(popupOptions)
+                        .setLatLng(marker.getLatLng())
+                        .setContent(popupContent)
+                        .openOn(map);
+                });
+        } else {
+            console.error('No data found for:', '{{ groupe.name }}');
+        }
+    })
+    .catch(error => console.error('Error with geocoding:', error));
+
+
+
     {% endfor %}
 </script>
 

@@ -19,15 +19,16 @@ class WsUniteRepository extends ServiceEntityRepository
 
     //calcluler le nombre de membres présentsdans une unité
     //pour ça je séléctionne le nom de l'unité et dois joindre la table membre en calculant le nombre de fois que l'id est noté+groupépar nom
-    public function countMembresByUnite()
-{
-    return $this->createQueryBuilder('u')
-        ->select('u.name AS uniteName, COUNT(m.id) AS membresCount')
-        ->leftJoin('u.wsMembres', 'm')
-        ->groupBy('u.name')
-        ->getQuery()
-        ->getResult();
-}
+    public function countMembresByUnite(WsUnite $unite): int
+    {
+        return $this->createQueryBuilder('u')
+            ->select('COUNT(m.id)')
+            ->leftJoin('u.wsMembres', 'm')
+            ->where('u = :unite')
+            ->setParameter('unite', $unite)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
 //    /**
 //     * @return WsUnite[] Returns an array of WsUnite objects

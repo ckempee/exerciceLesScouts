@@ -395,13 +395,16 @@ img{
 </style>
 
 
-<nav class="dashboard-nav-list"><a href="#" class="dashboard-nav-item">
+<nav class="dashboard-nav-list">
+
+
+<a href="{{ path('dashboard') }}" class="dashboard-nav-item">
  <img src="{{ asset('images/scouts.png') }}" alt="Home" class="nav-icon">
          </a>
-           
-            <a
-                href="#" class="dashboard-nav-item active"><i class="fas fa-tachometer-alt"></i> Tous les membres
-        </a><a
+           <a href="{{ path('listMembres') }}"class="dashboard-nav-item active">
+                <i class="fas fa-tachometer-alt"></i> Tous les membres
+            </a>
+        <a
                 href="#" class="dashboard-nav-item"><i class="fas fa-file-upload"></i> Membres par Unité </a>
             <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><i
                     class="fas fa-photo-video"></i> Media </a>

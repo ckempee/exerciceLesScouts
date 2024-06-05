@@ -29,17 +29,17 @@ class WsSectionRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
-    public function membresParUnite(): array
+    public function countMembersByUnite($uniteId): int
     {
         return $this->createQueryBuilder('s')
-            ->select('u.name AS unite, COUNT(m.id) AS total')
+            ->select('COUNT(m.id)')
             ->join('s.wsMembres', 'm')
             ->join('s.unite', 'u')
-            ->groupBy('u.name')
+            ->where('u.id = :uniteId')
+            ->setParameter('uniteId', $uniteId)
             ->getQuery()
-            ->getResult();
+            ->getSingleScalarResult();
     }
-
     public function membresParBrancheDansUnite($uniteId): array
 {
     return $this->createQueryBuilder('s')
