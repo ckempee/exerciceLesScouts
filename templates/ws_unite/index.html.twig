@@ -8,20 +8,18 @@
         <h1 class="mt-2">Bienvenue sur l'unité de {{ unite.name }} !</h1>
         
         <div>
-        
-        <button type="button" class="btn btn-info">{{ nombreMembres }} membres</button>
+            <button type="button" class="btn btn-info" id="show-all-members">{{ nombreMembres }} membres</button>
         </div>
     </div>
 
-    
     <div class="statis mt-3 text-center">
         <div class="row">
-            {% for branche in branches %}
-                <div class="col-6 col-md-3 mb-4">
+            {% for branche_data in branches %}
+                <div class="col-6 col-md-3 mb-4 branch-info" data-branch-id="{{ branche_data.branche | lower }}">
                     <div class="box p-3 bg-light">
-                        <img src="/images/{{ branche.branche }}.png" alt="{{ branche.branche }}" class="img-fluid mb-2">
-                        <h3>{{ branche.total }}</h3>
-                        <p class="lead">{{ branche.branche }}</p>
+                        <img src="/images/{{ branche_data.branche }}.png" alt="{{ branche_data.branche }}" class="img-fluid mb-2">
+                        <h3>{{ branche_data.total }}</h3>
+                        <p class="lead">{{ branche_data.branche }}</p>
                     </div>
                 </div>
             {% endfor %}
@@ -35,19 +33,18 @@
         <div class="col">
             <table class="table table-striped">
                 <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Unité</th>
-                    <th>Branche</th>
-                </tr>
-
-                    
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Unité</th>
+                        <th>Branche</th>
+                    </tr>
                 </thead>
-               {% for section in unite.WsSections %}
+                <tbody>
+                    {% for section in unite.WsSections %}
                         {% for membre in section.WsMembres %}
-                            <tr>
+                            <tr class="branch-member branch-{{ membre.section.branche.name | lower }}">
                                 <td>{{ membre.prenom }}</td>
                                 <td>{{ membre.nom }}</td>
                                 <td>{{ membre.email }}</td>
@@ -69,4 +66,45 @@
         </div>
     </div>
 </div>
+
+<!-- Inclure jQuery pour faciliter l'utilisation des requêtes AJAX -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Afficher tous les membres par défaut
+        $('.branch-member').show();
+
+        // Détecter les clics sur les divs représentant les branches
+        $('.branch-info').click(function() {
+            // Récupérer l'identifiant unique de la branche sélectionnée
+            var branchId = $(this).data('branch-id');
+            
+            // Cacher tous les membres
+            $('.branch-member').hide();
+            
+            // Afficher seulement les membres de la branche sélectionnée
+            $('.branch-' + branchId).show();
+        });
+
+        // Afficher tous les membres lorsque le bouton est cliqué
+        $('#show-all-members').click(function() {
+            $('.branch-member').show();
+        });
+    });
+
+    // Fonction pour associer chaque nom de branche à une couleur
+    function branchColor(branchName) {
+        switch (branchName.toLowerCase()) {
+            case 'baladins':
+                return 'info';
+            case 'eclaireurs':
+                return 'primary';
+            case 'louveteaux':
+                return 'success';
+            default:
+                return 'danger';
+        }
+    }
+</script>
 {% endblock %}

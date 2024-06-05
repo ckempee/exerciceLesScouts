@@ -47,71 +47,46 @@
             z-index: 0;
         }
       
-
-.sidebar-open {
-    transform: translateX(0);
-}
-
-.leaflet-popup {
-    width:350px;
-    height:250px;
-    right:50px;
-    background-color: white;
-}
-.leaflet-popup-content {
-    width:350px;
-    max-height: max-content;
-    background-color: white;
-   
-
-    padding: 10px;
-}
-
-/* Styles pour la flèche de la fenêtre pop-up */
-.leaflet-popup-tip-container {
-    display: none; /* Masque la flèche */
-}
-
-/* Styles pour la fenêtre pop-up lorsqu'elle est ouverte */
+        .leaflet-popup {
+            width: 300px;
+            height: max-content;
+            background-color: white;
+            font-size:1rem !important;
+        }
+        .leaflet-popup-content-wrapper {
+            width: 300px;
+            height: max-content;
+            background-color: white;
+        }
+         .leaflet-popup-content.leaflet-popup-scrolled {
+            width: 300px !important ;
+            height: max-content  !important;
+            margin:0;
+        }
 
 
-/* Positionnement de la fenêtre pop-up sur le côté droit de la carte */
-.leaflet-popup-pane {
-    position: fixed !important;
-    right: 50px; /* Ajustez cette valeur selon vos besoins */
-    top: 50%; /* Centrer verticalement */
-    transform: translateY(-50%);
-    max-width: 300px; /* Ajustez la largeur maximale selon vos besoins */
-    z-index: 1000; /* Assurez-vous que la fenêtre pop-up est au-dessus de tout */
-}
+        .popup-content{
+            width: 200px;
+            height: max-content;
 
+        }
 
-.unit {
-        padding: 10px;
-    background-color: #fff;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
+     
+        .unit {
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 300px;
+    height: 55px;
+    margin-bottom: 0px !important;
+        }
 
-
-
-/* Pour la première unité, pas de marge supérieure */
-.unit:first-child {
-    margin-top: 0;
-}
-
-/* Pour la dernière unité, pas de marge inférieure */
-.unit:last-child {
-    margin-bottom: 0;
-}
-.popup-content {
-    padding: 10px;
-    background-color: #fff;
-    overflow-y: auto; /* Ajout de défilement vertical si nécessaire */
-    max-height: 500px; /* Limite la hauteur du pop-up */
-}
-
-
-
+        .unit button{
+            padding:0;
+            height: max-content;
+            width:100px;
+        }
+     
     </style>
 {% endblock %}
 
@@ -160,7 +135,6 @@
         <div class="col-md-8">
             <div class="box p-3">
                 <div id="map" style="height: 500px;"></div>
-                
             </div>
         </div>
     </div>
@@ -214,50 +188,41 @@
 
     {% for groupe in groupeUnite %}
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q={{ groupe.name }}, Belgium`)
-    .then(response => response.json())
-    .then(data => {
-        if (data.length > 0) {
-            var latLng = [data[0].lat, data[0].lon];
-            var marker = L.marker(latLng)
-                .addTo(map)
-                .on('click', function () {
-                    var popupContent = `
-                        <div class="popup-content">
-                            <h2>{{ groupe.name }}</h2>
-                            
-                            <div class="unit-list">
-                                {% for unite in groupe.WsUnites %}
-                                    <div class="unit">{{ unite.name }}</div>
-                                    <div>
-                                      <a href="{{ path('wsUnite', { id: unite.id }) }}"
-    <button> Voir </button> 
-    </a> </div>
-                                    
-                                {% endfor %}
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                var latLng = [data[0].lat, data[0].lon];
+                var marker = L.marker(latLng)
+                    .addTo(map)
+                    .on('click', function () {
+                        var popupContent = `
+                            <div class="popup-content">
+                                <h2>{{ groupe.name }}</h2>
+                                <div class="unit-list">
+                                    {% for unite in groupe.WsUnites %}
+                                        <div class="unit d-flex justify-content-between align-items-center mb-3">
+                                            <span>{{ unite.name }}</span>
+                                            <a href="{{ path('wsUnite', { id: unite.id }) }}" class="btn btn-success" style="background-color: #43BC18;">Voir</a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
-                        </div>
-                    `;
-                    var popupOptions = {
-                        maxWidth: '300',
-                        maxHeight: '200'
-                    };
-                    var popup = L.popup(popupOptions)
-                        .setLatLng(marker.getLatLng())
-                        .setContent(popupContent)
-                        .openOn(map);
-                });
-        } else {
-            console.error('No data found for:', '{{ groupe.name }}');
-        }
-    })
-    .catch(error => console.error('Error with geocoding:', error));
-
-
-
+                        `;
+                        var popupOptions = {
+                            maxWidth: '300',
+                            maxHeight: '200'
+                        };
+                        var popup = L.popup(popupOptions)
+                            .setLatLng(marker.getLatLng())
+                            .setContent(popupContent)
+                            .openOn(map);
+                    });
+            } else {
+                console.error('No data found for:', '{{ groupe.name }}');
+            }
+        })
+        .catch(error => console.error('Error with geocoding:', error));
     {% endfor %}
 </script>
-
-
-
 
 {% endblock %}
